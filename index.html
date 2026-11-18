@@ -358,6 +358,16 @@
   }
   footer a { color: var(--cyan); text-decoration: none; }
 
+  /* ─── EASTER EGG: ant sighting toast ─── */
+  #antEgg {
+    position: fixed; left: 50%; bottom: 1.2rem; transform: translateX(-50%);
+    z-index: 300; max-width: min(92vw, 560px); padding: .8rem 1rem;
+    font-family: 'Share Tech Mono', monospace; font-size: .72rem; line-height: 1.5;
+    color: var(--green); background: #07130c; border: 1px solid var(--green);
+    border-radius: 10px; box-shadow: 0 0 24px rgba(0,255,135,.35); text-align: center;
+  }
+  #antEgg .ant-egg-fine { color: var(--dim); font-size: .62rem; }
+
   /* ─── HIGHLIGHT ─── */
   mark { background: rgba(255,204,0,.25); color: var(--yellow); border-radius: 2px; padding: 0 1px; }
 </style>
@@ -527,6 +537,9 @@
   <footer>
     NEXUS Terminal Bible &nbsp;·&nbsp; AntManThePro &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; Access: GODMODE 🔐
   </footer>
+
+  <!-- 🐜 Easter egg: type "antman" anywhere on the page (not while typing in a box) -->
+  <div id="antEgg" hidden>🐜 ANT SIGHTING — DoubleA was here. This Bible holds 125+ commands and not one of them can find your other sock.<br><span class="ant-egg-fine">Fine print: this ant does no work, holds no meetings, and files no tickets. It just watches the terminal the way a foreman watches a roof hatch — quietly, and with opinions. Not perfect, just real.</span></div>
 
 </div><!-- /app -->
 
@@ -846,6 +859,9 @@ document.querySelectorAll('.cat-btn').forEach(btn => {
 const scrollBtn = document.getElementById('scrollTop');
 window.addEventListener('scroll', () => scrollBtn.classList.toggle('visible', window.scrollY > 400));
 scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+// 🐜 Easter egg: type "antman" anywhere (not while typing in a box) for an ant sighting.
+(function(){var keys='';document.addEventListener('keydown',function(e){var t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'))return;keys=(keys+e.key.toLowerCase()).slice(-6);if(keys==='antman'){keys='';var egg=document.getElementById('antEgg');if(egg){egg.hidden=false;setTimeout(function(){egg.hidden=true;},8000);}}});})();
 
 // Only render if already authed on load
 if (sessionStorage.getItem('nexus_auth') === '1') render();

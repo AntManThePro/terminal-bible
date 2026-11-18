@@ -42,3 +42,20 @@ banned-branding hits, a proper web manifest, an SVG icon, and MIT licensing
 No code changes were needed for this build: only icon/manifest links were
 added to `<head>` (PNG icon set in `icons/`, `manifest.json` alongside the
 original `manifest.webmanifest`), and the original `icon.svg` is kept.
+
+## Live
+
+https://terminal-bible.netlify.app/
+
+## How to use
+
+1. Open the live site and enter the access code printed on the gate screen.
+2. Search any command, or filter by category (FUN, GAMES, NETWORK, SEC / HACKING…).
+3. Tap a card to copy the command, then paste it in your own terminal.
+4. Open the directions guide in-app for WSL, dual-boot, and safety commandments.
+
+## Links
+
+- Live site: https://terminal-bible.netlify.app/
+- NEXUS World Hub: https://nexus-world-hub.netlify.app/
+- Repo: https://github.com/AntManThePro/terminal-bible

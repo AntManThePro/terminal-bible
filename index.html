@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#0a0e27"/>
+<meta name="description" content="NEXUS Terminal Bible — Interactive, gated terminal command reference by AntManThePro. 125+ curated commands across FUN, VISUAL, SYSADMIN, NETWORK, WIZARDRY and more. Access code: GODMODE."/>
+<meta name="author" content="AntManThePro"/>
+<meta property="og:title" content="NEXUS // Terminal Bible"/>
+<meta property="og:description" content="Interactive terminal command bible. Gated. Neon. 125+ commands. Built by AntManThePro."/>
+<meta property="og:type" content="website"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<link rel="icon" href="icon.svg" type="image/svg+xml"/>
+<link rel="icon" href="icons/favicon.ico" type="image/x-icon"/>
+<link rel="icon" type="image/png" sizes="192x192" href="icons/favicon-192.png"/>
+<link rel="icon" type="image/png" sizes="512x512" href="icons/favicon-512.png"/>
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+<link rel="manifest" href="manifest.webmanifest"/>
+<link rel="manifest" href="manifest.json"/>
+<title>NEXUS // Terminal Bible</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap');
+
+  :root {
+    --green:  #00ff87;
+    --cyan:   #60efff;
+    --pink:   #ff0080;
+    --yellow: #ffcc00;
+    --bg:     #0a0e27;
+    --bg2:    #0d1233;
+    --bg3:    #111840;
+    --border: rgba(96,239,255,0.18);
+    --text:   #c8d8ff;
+    --dim:    rgba(200,216,255,0.45);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Exo 2', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);
+    pointer-events: none; z-index: 9999;
+  }
+
+  /* ════════════════════════════════
+     GATE SCREEN
+  ════════════════════════════════ */
+  #gate {
+    position: fixed; inset: 0; z-index: 5000;
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 1.5rem; padding: 2rem;
+  }
+  #gate.hidden { display: none; }
+
+  .gate-logo {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: clamp(1.4rem, 6vw, 2.6rem);
+    letter-spacing: .12em;
+    background: linear-gradient(135deg, var(--green) 0%, var(--cyan) 40%, var(--pink) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+  }
+  .gate-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: .8rem;
+    color: var(--dim);
+    letter-spacing: .1em;
+    text-align: center;
+  }
+  .gate-lock {
+    font-size: 3rem;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { text-shadow: 0 0 10px var(--cyan); opacity: .8; }
+    50%      { text-shadow: 0 0 30px var(--cyan), 0 0 60px var(--cyan); opacity: 1; }
+  }
+
+  .gate-form {
+    display: flex; flex-direction: column;
+    align-items: center; gap: .75rem;
+    width: 100%; max-width: 360px;
+  }
+  #accessCode {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--green);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1rem;
+    letter-spacing: .2em;
+    text-align: center;
+    padding: .75rem 1rem;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  #accessCode:focus {
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 3px rgba(96,239,255,.15), 0 0 20px rgba(96,239,255,.1);
+  }
+  #accessCode::placeholder { color: var(--dim); letter-spacing: .05em; font-size: .8rem; }
+
+  .gate-btn {
+    width: 100%;
+    background: linear-gradient(135deg, rgba(0,255,135,.15), rgba(96,239,255,.1));
+    border: 1px solid var(--green);
+    border-radius: 6px;
+    color: var(--green);
+    font-family: 'Orbitron', monospace;
+    font-size: .8rem;
+    letter-spacing: .15em;
+    padding: .75rem;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .gate-btn:hover {
+    background: rgba(0,255,135,.25);
+    box-shadow: 0 0 20px rgba(0,255,135,.3);
+  }
+
+  #gateError {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: .75rem;
+    color: var(--pink);
+    text-align: center;
+    min-height: 1.2em;
+    letter-spacing: .05em;
+  }
+
+  .gate-hint {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: .65rem;
+    color: rgba(200,216,255,.2);
+    text-align: center;
+    margin-top: .5rem;
+  }
+
+  /* scanning beam on gate */
+  #gate::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    animation: scan 3s linear infinite;
+    opacity: .4;
+  }
+  @keyframes scan {
+    0%   { top: 0; }
+    100% { top: 100%; }
+  }
+
+  /* ════════════════════════════════
+     APP (hidden until auth)
+  ════════════════════════════════ */
+  #app { display: none; }
+  #app.visible { display: block; }
+
+  /* ─── HEADER ─── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,14,39,0.96);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem;
+  }
+  .header-inner {
+    max-width: 1400px; margin: 0 auto;
+    display: flex; align-items: center; gap: 1rem;
+    padding: .8rem 0; flex-wrap: wrap;
+  }
+  .logo {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900; font-size: clamp(.8rem, 2vw, 1rem);
+    color: var(--cyan); letter-spacing: .15em;
+    text-shadow: 0 0 18px var(--cyan);
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .logo span { color: var(--green); }
+  .search-wrap { flex: 1; min-width: 160px; position: relative; }
+  .search-wrap svg {
+    position: absolute; left: .75rem; top: 50%;
+    transform: translateY(-50%);
+    width: 15px; height: 15px; stroke: var(--cyan); fill: none; pointer-events: none;
+  }
+  #searchInput {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text);
+    font-family: 'Share Tech Mono', monospace; font-size: .82rem;
+    padding: .5rem .75rem .5rem 2.1rem; outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  #searchInput:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(96,239,255,.12); }
+  #searchInput::placeholder { color: var(--dim); }
+  .stats-badge { font-family: 'Share Tech Mono', monospace; font-size: .72rem; color: var(--dim); white-space: nowrap; flex-shrink: 0; }
+  .stats-badge strong { color: var(--green); }
+
+  /* ─── FILTER BAR ─── */
+  .filter-bar {
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    padding: .5rem 1.5rem; overflow-x: auto; scrollbar-width: none;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-inner { max-width: 1400px; margin: 0 auto; display: flex; gap: .4rem; align-items: center; }
+  .filter-label { font-family: 'Orbitron', monospace; font-size: .58rem; letter-spacing: .1em; color: var(--dim); white-space: nowrap; flex-shrink: 0; margin-right: .3rem; }
+  .cat-btn {
+    font-family: 'Share Tech Mono', monospace; font-size: .68rem; letter-spacing: .04em;
+    padding: .25rem .65rem; border-radius: 4px; border: 1px solid transparent;
+    cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all .15s;
+    background: var(--bg3); color: var(--dim);
+  }
+  .cat-btn:hover { color: var(--cyan); border-color: rgba(96,239,255,.3); }
+  .cat-btn.active { border-color: var(--green); color: var(--green); background: rgba(0,255,135,.08); text-shadow: 0 0 8px var(--green); box-shadow: 0 0 6px rgba(0,255,135,.2); }
+
+  /* ─── HERO ─── */
+  .hero {
+    background: linear-gradient(135deg, rgba(0,255,135,.05), rgba(96,239,255,.04), rgba(255,0,128,.04));
+    border-bottom: 1px solid var(--border); padding: 2rem 1.5rem 1.8rem; text-align: center;
+  }
+  .hero-title {
+    font-family: 'Orbitron', monospace; font-weight: 900;
+    font-size: clamp(1.3rem, 5vw, 2.6rem); letter-spacing: .1em;
+    background: linear-gradient(135deg, var(--green) 0%, var(--cyan) 40%, var(--pink) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: .4rem;
+  }
+  .hero-sub { font-family: 'Share Tech Mono', monospace; font-size: clamp(.65rem, 2vw, .85rem); color: var(--dim); letter-spacing: .07em; }
+  .hero-sub strong { color: var(--yellow); }
+  .pill-row { display: flex; gap: .4rem; justify-content: center; flex-wrap: wrap; margin-top: .9rem; }
+  .pill { font-family: 'Orbitron', monospace; font-size: .58rem; letter-spacing: .09em; padding: .28rem .75rem; border-radius: 20px; border: 1px solid; }
+  .pill-g { color: var(--green); border-color: var(--green); background: rgba(0,255,135,.07); }
+  .pill-c { color: var(--cyan); border-color: var(--cyan); background: rgba(96,239,255,.07); }
+  .pill-p { color: var(--pink); border-color: var(--pink); background: rgba(255,0,128,.07); }
+  .pill-y { color: var(--yellow); border-color: var(--yellow); background: rgba(255,204,0,.07); }
+
+  /* ─── MAIN ─── */
+  main { max-width: 1400px; margin: 0 auto; padding: 1.5rem 1.5rem 0; }
+  #resultCount { font-family: 'Share Tech Mono', monospace; font-size: .75rem; color: var(--dim); margin-bottom: 1rem; }
+  #resultCount strong { color: var(--yellow); }
+  #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 350px), 1fr)); gap: .9rem; }
+
+  /* ─── CARD ─── */
+  .card {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    padding: .9rem .9rem .8rem; display: flex; flex-direction: column; gap: .5rem;
+    transition: border-color .2s, transform .15s, box-shadow .2s; position: relative; overflow: hidden;
+  }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--cat-color, var(--cyan)); opacity: .6; }
+  .card:hover { border-color: var(--cat-color, var(--cyan)); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+  .card-top { display: flex; align-items: flex-start; gap: .55rem; justify-content: space-between; }
+  .cmd-text { font-family: 'Share Tech Mono', monospace; font-size: .8rem; color: var(--green); word-break: break-all; line-height: 1.4; flex: 1; }
+  .copy-btn {
+    flex-shrink: 0; background: rgba(0,255,135,.08); border: 1px solid rgba(0,255,135,.25);
+    border-radius: 4px; color: var(--green); font-family: 'Share Tech Mono', monospace;
+    font-size: .62rem; padding: .18rem .45rem; cursor: pointer; transition: all .15s; white-space: nowrap;
+  }
+  .copy-btn:hover { background: rgba(0,255,135,.2); box-shadow: 0 0 8px rgba(0,255,135,.3); }
+  .copy-btn.copied { color: var(--yellow); border-color: var(--yellow); background: rgba(255,204,0,.1); }
+  .desc { font-size: .78rem; color: var(--text); line-height: 1.5; opacity: .85; }
+  .card-footer { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-top: auto; }
+  .badge { font-family: 'Orbitron', monospace; font-size: .56rem; letter-spacing: .05em; padding: .13rem .42rem; border-radius: 3px; border: 1px solid; }
+  .badge-cat  { color: var(--cat-color, var(--cyan)); border-color: var(--cat-color, var(--cyan)); opacity: .8; }
+  .badge-plat { color: var(--dim); border-color: rgba(200,216,255,.2); }
+  .badge-cross { color: var(--yellow); border-color: var(--yellow); opacity: .8; }
+  .install { font-family: 'Share Tech Mono', monospace; font-size: .68rem; color: var(--dim); margin-top: .1rem; word-break: break-word; line-height: 1.4; }
+  .install-label { color: var(--pink); opacity: .7; }
+
+  /* ─── EMPTY ─── */
+  #empty { display: none; text-align: center; padding: 4rem 1rem; font-family: 'Orbitron', monospace; color: var(--dim); }
+  #empty span { color: var(--pink); font-size: 2rem; display: block; margin-bottom: 1rem; }
+
+  /* ═══════════════════════════════════════════
+     DIRECTIONS SECTION
+  ═══════════════════════════════════════════ */
+  .directions {
+    max-width: 1400px; margin: 3rem auto 0; padding: 0 1.5rem 5rem;
+  }
+  .dir-header {
+    font-family: 'Orbitron', monospace; font-weight: 900;
+    font-size: clamp(1.1rem, 3vw, 1.8rem); letter-spacing: .12em;
+    color: var(--yellow);
+    text-shadow: 0 0 20px rgba(255,204,0,.4);
+    border-top: 1px solid var(--border);
+    padding-top: 2rem; margin-bottom: .4rem;
+  }
+  .dir-verse {
+    font-family: 'Share Tech Mono', monospace; font-size: .75rem;
+    color: var(--dim); letter-spacing: .06em; margin-bottom: 2rem;
+    font-style: italic;
+  }
+  .dir-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+    gap: 1.2rem;
+  }
+  .dir-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.2rem 1.2rem 1rem; position: relative; overflow: hidden;
+  }
+  .dir-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent, var(--yellow)); }
+  .dir-title {
+    font-family: 'Orbitron', monospace; font-size: .8rem; letter-spacing: .1em;
+    color: var(--accent, var(--yellow)); margin-bottom: .8rem;
+    text-shadow: 0 0 10px var(--accent, var(--yellow));
+  }
+  .dir-step {
+    display: flex; gap: .7rem; margin-bottom: .65rem; align-items: flex-start;
+  }
+  .dir-num {
+    font-family: 'Orbitron', monospace; font-size: .65rem;
+    color: var(--accent, var(--yellow)); font-weight: 700;
+    flex-shrink: 0; width: 1.4rem; padding-top: .05rem;
+  }
+  .dir-text { font-size: .78rem; color: var(--text); line-height: 1.5; opacity: .9; }
+  .dir-text code {
+    font-family: 'Share Tech Mono', monospace; color: var(--green);
+    background: rgba(0,255,135,.08); border-radius: 3px; padding: .05rem .3rem; font-size: .75rem;
+  }
+  .dir-note {
+    font-family: 'Share Tech Mono', monospace; font-size: .68rem;
+    color: var(--pink); margin-top: .8rem; padding-top: .7rem;
+    border-top: 1px solid var(--border); line-height: 1.5;
+  }
+  .dir-verse-block {
+    font-family: 'Share Tech Mono', monospace; font-size: .7rem;
+    color: var(--dim); text-align: center; font-style: italic;
+    margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border);
+    line-height: 1.8;
+  }
+  .dir-verse-block strong { color: var(--yellow); }
+
+  /* ─── SCROLL TO TOP ─── */
+  #scrollTop {
+    position: fixed; bottom: 1.5rem; right: 1.5rem; width: 40px; height: 40px;
+    background: var(--bg3); border: 1px solid var(--cyan); border-radius: 8px;
+    color: var(--cyan); font-size: 1.1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 200;
+  }
+  #scrollTop.visible { opacity: 1; pointer-events: auto; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    text-align: center; padding: 1.5rem; font-family: 'Share Tech Mono', monospace;
+    font-size: .68rem; color: var(--dim); border-top: 1px solid var(--border);
+  }
+  footer a { color: var(--cyan); text-decoration: none; }
+
+  /* ─── HIGHLIGHT ─── */
+  mark { background: rgba(255,204,0,.25); color: var(--yellow); border-radius: 2px; padding: 0 1px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     GATE SCREEN
+══════════════════════════════════════ -->
+<div id="gate">
+  <div class="gate-lock">🔐</div>
+  <div class="gate-logo">NEXUS // TERMINAL BIBLE</div>
+  <div class="gate-sub">v4 HUGE EDITION &nbsp;·&nbsp; ANT'S EYES ONLY</div>
+  <div class="gate-form">
+    <input type="password" id="accessCode" placeholder="ENTER ACCESS CODE" autocomplete="off" spellcheck="false"/>
+    <button class="gate-btn" onclick="checkAccess()">AUTHENTICATE →</button>
+    <div id="gateError"></div>
+  </div>
+  <div class="gate-hint">by AntManThePro &nbsp;·&nbsp; code: GODMODE</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     APP
+══════════════════════════════════════ -->
+<div id="app">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-title">NEXUS // TERMINAL BIBLE</div>
+    <div class="hero-sub">
+      <strong id="totalCount">125+</strong> commands &nbsp;·&nbsp; Linux · Windows · Cross-Platform
+      &nbsp;·&nbsp; by <strong>AntManThePro</strong>
+    </div>
+    <div class="pill-row">
+      <span class="pill pill-g">FUN</span><span class="pill pill-c">VISUAL</span>
+      <span class="pill pill-p">SEC / HACKING</span><span class="pill pill-y">SYSADMIN</span>
+      <span class="pill pill-g">GAMES</span><span class="pill pill-c">NETWORK</span>
+      <span class="pill pill-p">CURL TRICKS</span><span class="pill pill-y">ONE-LINERS</span>
+      <span class="pill pill-g">WIZARDRY</span>
+    </div>
+  </div>
+
+  <!-- STICKY HEADER -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">NEXUS <span>//</span> BIBLE</div>
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="Search commands, descriptions, installs..." autocomplete="off" spellcheck="false"/>
+      </div>
+      <div class="stats-badge"><strong id="shownCount">130</strong> / <span id="totalSpan">130</span> shown</div>
+    </div>
+  </header>
+
+  <!-- FILTERS -->
+  <div class="filter-bar">
+    <div class="filter-inner">
+      <div class="filter-label">FILTER:</div>
+      <button class="cat-btn active" data-cat="ALL">ALL</button>
+      <button class="cat-btn" data-cat="FUN">FUN</button>
+      <button class="cat-btn" data-cat="VISUAL">VISUAL</button>
+      <button class="cat-btn" data-cat="ASCII ART">ASCII ART</button>
+      <button class="cat-btn" data-cat="GAMES">GAMES</button>
+      <button class="cat-btn" data-cat="AUDIO">AUDIO</button>
+      <button class="cat-btn" data-cat="SYS INFO">SYS INFO</button>
+      <button class="cat-btn" data-cat="NETWORK">NETWORK</button>
+      <button class="cat-btn" data-cat="SYSADMIN">SYSADMIN</button>
+      <button class="cat-btn" data-cat="SEC / HACKING">SEC / HACKING</button>
+      <button class="cat-btn" data-cat="CURL TRICKS">CURL TRICKS</button>
+      <button class="cat-btn" data-cat="ONE-LINERS">ONE-LINERS</button>
+      <button class="cat-btn" data-cat="WIZARDRY">WIZARDRY</button>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <main>
+    <div id="resultCount"></div>
+    <div id="grid"></div>
+    <div id="empty"><span>⚡</span>No commands match. Try a different search or reset filter.</div>
+  </main>
+
+  <!-- ══════════════════════════════════════
+       DIRECTIONS — THE GOSPEL ACCORDING TO ANT
+  ══════════════════════════════════════ -->
+  <div class="directions">
+    <div class="dir-header">📖 THE BOOK OF COMMANDS — HOW TO MAKE MIRACLES</div>
+    <div class="dir-verse">"And lo, AntManThePro opened the terminal, and the cursor blinked, and it was good." — NEXUS 1:1</div>
+
+    <div class="dir-grid">
+
+      <!-- LINUX SETUP -->
+      <div class="dir-card" style="--accent: var(--green)">
+        <div class="dir-title">⚙️ CHAPTER 1 — LINUX SETUP (THE PROMISED LAND)</div>
+        <div class="dir-step"><div class="dir-num">1.</div><div class="dir-text">Open a terminal — <code>Ctrl+Alt+T</code> on most distros, or search "Terminal" in your app menu. On WSL: press <code>Win+R</code>, type <code>wsl</code>, Enter.</div></div>
+        <div class="dir-step"><div class="dir-num">2.</div><div class="dir-text">Always run <code>sudo apt update && sudo apt upgrade</code> first. An unupdated system is a sin. Don't sin.</div></div>
+        <div class="dir-step"><div class="dir-num">3.</div><div class="dir-text">Install the holy trinity first: <code>sudo apt install curl git wget</code>. Everything else builds on these three.</div></div>
+        <div class="dir-step"><div class="dir-num">4.</div><div class="dir-text">For <code>pip</code> installs, use <code>pip install X --break-system-packages</code> on Ubuntu 23+. The system protects itself; override it.</div></div>
+        <div class="dir-step"><div class="dir-num">5.</div><div class="dir-text">For <code>brew</code> installs, first get Homebrew: <code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></div></div>
+        <div class="dir-note">⚡ Pipe anything visual through <code>| lolcat</code> for instant rainbow mode. Everything is better in rainbow.</div>
+      </div>
+
+      <!-- WINDOWS SETUP -->
+      <div class="dir-card" style="--accent: var(--cyan)">
+        <div class="dir-title">🪟 CHAPTER 2 — WINDOWS COMMAND ARTS</div>
+        <div class="dir-step"><div class="dir-num">1.</div><div class="dir-text"><strong>CMD:</strong> Press <code>Win+R</code>, type <code>cmd</code>, Enter. For admin powers: right-click "Command Prompt" → "Run as Administrator". Admin = miracles.</div></div>
+        <div class="dir-step"><div class="dir-num">2.</div><div class="dir-text"><strong>PowerShell:</strong> Press <code>Win+X</code>, then <code>A</code> for admin PowerShell. PS is a full scripting language — treat it like one.</div></div>
+        <div class="dir-step"><div class="dir-num">3.</div><div class="dir-text">Install <strong>Windows Terminal</strong> from the Microsoft Store. It's free, it's beautiful, and it makes CMD look like a cave painting.</div></div>
+        <div class="dir-step"><div class="dir-num">4.</div><div class="dir-text">Install <strong>winget</strong> (comes with Windows 11, or get it from the Store). Then: <code>winget install X</code> = instant apps.</div></div>
+        <div class="dir-step"><div class="dir-num">5.</div><div class="dir-text">Install <strong>Scoop</strong> for dev tools: <code>iwr -useb get.scoop.sh | iex</code> in PowerShell. Then <code>scoop install neofetch bat fd</code> etc.</div></div>
+        <div class="dir-note">⚡ Any command marked HACKING requires CMD or PowerShell as Administrator. No admin = no miracles.</div>
+      </div>
+
+      <!-- CURL GOSPEL -->
+      <div class="dir-card" style="--accent: var(--pink)">
+        <div class="dir-title">🌐 CHAPTER 3 — THE CURL GOSPEL</div>
+        <div class="dir-step"><div class="dir-num">1.</div><div class="dir-text"><code>curl</code> is pre-installed on modern Windows 10/11 AND every Linux distro. No install needed — it is a gift.</div></div>
+        <div class="dir-step"><div class="dir-num">2.</div><div class="dir-text">The basic formula: <code>curl [URL]</code>. Add <code>-s</code> to silence download progress. Add <code>-L</code> to follow redirects.</div></div>
+        <div class="dir-step"><div class="dir-num">3.</div><div class="dir-text">For ascii.live animations: <code>curl ascii.live/forrest</code> — these are live server-side terminal art streams. Ctrl+C to escape.</div></div>
+        <div class="dir-step"><div class="dir-num">4.</div><div class="dir-text">For wttr.in weather: <code>curl wttr.in/Dallas</code> or replace Dallas with any city. Add <code>?format=3</code> for compact one-line output.</div></div>
+        <div class="dir-step"><div class="dir-num">5.</div><div class="dir-text">For cheat.sh: <code>curl cheat.sh/COMMAND</code> — replace COMMAND with anything: git, docker, vim, regex, python. Instant docs.</div></div>
+        <div class="dir-note">⚡ On Windows, curl works in CMD and PowerShell but Invoke-WebRequest (iwr) is the native PS equivalent if curl isn't found.</div>
+      </div>
+
+      <!-- PIPE SORCERY -->
+      <div class="dir-card" style="--accent: var(--yellow)">
+        <div class="dir-title">🔗 CHAPTER 4 — THE ART OF THE PIPE</div>
+        <div class="dir-step"><div class="dir-num">1.</div><div class="dir-text">The pipe <code>|</code> is the most powerful character in any terminal. It chains commands: output of left → input of right. Chain without limit.</div></div>
+        <div class="dir-step"><div class="dir-num">2.</div><div class="dir-text">Add <code>| lolcat</code> to ANY Linux command for rainbow output. <code>echo "hello" | lolcat</code> is the gateway drug.</div></div>
+        <div class="dir-step"><div class="dir-num">3.</div><div class="dir-text">Add <code>| cowsay</code> to make a cow say any text. Chain them: <code>fortune | cowsay | lolcat</code> — dragon prophet in neon.</div></div>
+        <div class="dir-step"><div class="dir-num">4.</div><div class="dir-text"><code>| grep "keyword"</code> filters output to only lines containing your word. <code>systeminfo | grep Memory</code> = instant RAM info.</div></div>
+        <div class="dir-step"><div class="dir-num">5.</div><div class="dir-text"><code>> file.txt</code> saves output to a file. <code>>> file.txt</code> appends to it. <code>2>&1</code> captures errors too. Document everything.</div></div>
+        <div class="dir-note">⚡ Windows pipes work in both CMD and PowerShell but PS pipes pass OBJECTS not text — far more powerful for data manipulation.</div>
+      </div>
+
+      <!-- WSL CROSS-PLATFORM -->
+      <div class="dir-card" style="--accent: var(--cyan)">
+        <div class="dir-title">⚡ CHAPTER 5 — WSL: THE BRIDGE BETWEEN WORLDS</div>
+        <div class="dir-step"><div class="dir-num">1.</div><div class="dir-text">Install WSL2: open PowerShell as admin, run <code>wsl --install</code>. Restart. You now have Linux inside Windows. It's not a trick — it's real.</div></div>
+        <div class="dir-step"><div class="dir-num">2.</div><div class="dir-text">Access your Windows files from WSL: <code>cd /mnt/c/Users/YourName</code>. Access WSL files from Windows: <code>\\wsl$\Ubuntu\home\user</code></div></div>
+        <div class="dir-step"><div class="dir-num">3.</div><div class="dir-text">Run Windows programs from inside WSL: <code>explorer.exe .</code> opens current folder in Windows Explorer. <code>notepad.exe file.txt</code> works too.</div></div>
+        <div class="dir-step"><div class="dir-num">4.</div><div class="dir-text">Run Linux commands from Windows CMD/PS: <code>wsl ls -la</code>, <code>wsl cat /etc/os-release</code>. Prefix any Linux command with <code>wsl</code>.</div></div>
+        <div class="dir-step"><div class="dir-num">5.</div><div class="dir-text">Free up RAM when done: <code>wsl --shutdown</code> from PowerShell. WSL2 can hog memory. Control it.</div></div>
+        <div class="dir-note">⚡ On your dual-boot Surface Pro: these CROSS-platform commands work on BOTH sides of the boot. Maximum efficiency.</div>
+      </div>
+
+      <!-- SAFETY & ETHICS -->
+      <div class="dir-card" style="--accent: var(--pink)">
+        <div class="dir-title">⚠️ CHAPTER 6 — THE COMMANDMENTS (DON'T BREAK THESE)</div>
+        <div class="dir-step"><div class="dir-num">I.</div><div class="dir-text"><strong>Thou shalt not run commands thou dost not understand.</strong> Copy → paste → research. <code>rm -rf /</code> is the delete everything command and it works instantly.</div></div>
+        <div class="dir-step"><div class="dir-num">II.</div><div class="dir-text"><strong>Thou shalt use SEC/HACKING commands only on systems thou own or hath explicit written permission.</strong> This is the law — not a suggestion.</div></div>
+        <div class="dir-step"><div class="dir-num">III.</div><div class="dir-text"><strong>Thou shalt backup before experiments.</strong> <code>wsl --export</code> or a snapshot before anything scary. There is no Ctrl+Z for <code>cipher /w:C:\</code>.</div></div>
+        <div class="dir-step"><div class="dir-num">IV.</div><div class="dir-text"><strong>Thou shalt test in WSL or a VM first.</strong> Your Surface Pro is sacred hardware. Don't run unknown scripts on bare metal.</div></div>
+        <div class="dir-step"><div class="dir-num">V.</div><div class="dir-text"><strong>Thou shalt read the install note on every card.</strong> Some commands require packages, some need admin, some need X11. The install note is scripture.</div></div>
+        <div class="dir-note">⚡ This Bible is AntManThePro's personal ops manual. With great terminal power comes great terminal responsibility.</div>
+      </div>
+
+    </div><!-- /dir-grid -->
+
+    <div class="dir-verse-block">
+      "The terminal is not a black box — it is a window into the machine's soul.<br/>
+      Read every line. Trust no output you did not summon. Pipe boldly.<br/>
+      <strong>— AntManThePro, Field Operations & Digital Doctrine, Hood Boss</strong>"
+    </div>
+
+  </div><!-- /directions -->
+
+  <footer>
+    NEXUS Terminal Bible &nbsp;·&nbsp; AntManThePro &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; Access: GODMODE 🔐
+  </footer>
+
+</div><!-- /app -->
+
+<button id="scrollTop" title="Back to top">↑</button>
+
+<script>
+/* ════════════════════════════════════════════════
+   AUTHENTICATION
+════════════════════════════════════════════════ */
+const HASH = '32059cbc44b9fdcdb9ea6d9f7e8b6b14da9c0c649ec922b7003e4c0218195ad1';
+
+async function sha256(msg) {
+  const buf  = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function checkAccess() {
+  const input = document.getElementById('accessCode').value.trim().toUpperCase();
+  const err   = document.getElementById('gateError');
+  if (!input) { err.textContent = '⚠ ACCESS CODE REQUIRED'; return; }
+
+  const hash = await sha256(input);
+  if (hash === HASH) {
+    sessionStorage.setItem('nexus_auth', '1');
+    document.getElementById('gate').classList.add('hidden');
+    document.getElementById('app').classList.add('visible');
+    render();
+  } else {
+    err.textContent = '❌ ACCESS DENIED — CODE INCORRECT';
+    document.getElementById('accessCode').value = '';
+    document.getElementById('accessCode').focus();
+    setTimeout(() => { err.textContent = ''; }, 3000);
+  }
+}
+
+// Enter key support
+document.getElementById('accessCode').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkAccess();
+});
+
+// Re-check on load
+if (sessionStorage.getItem('nexus_auth') === '1') {
+  document.getElementById('gate').classList.add('hidden');
+  document.getElementById('app').classList.add('visible');
+}
+
+/* ════════════════════════════════════════════════
+   COMMAND DATA
+════════════════════════════════════════════════ */
+const CAT_COLORS = {
+  'FUN':           '#00ff87',
+  'VISUAL':        '#60efff',
+  'ASCII ART':     '#60efff',
+  'GAMES':         '#ffcc00',
+  'AUDIO':         '#ff0080',
+  'SYS INFO':      '#00ff87',
+  'NETWORK':       '#60efff',
+  'SYSADMIN':      '#ffcc00',
+  'SEC / HACKING': '#ff0080',
+  'CURL TRICKS':   '#00ff87',
+  'ONE-LINERS':    '#ffcc00',
+  'WIZARDRY':      '#ff0080',
+};
+
+const COMMANDS = [
+  // ── FUN ──
+  {cmd:"curl ascii.live/forrest",cat:"FUN",plat:"Linux",desc:"Forrest Gump runs across your terminal in ASCII animation. \"Run Forrest RUN.\" Legendary curl trick.",inst:"curl built-in"},
+  {cmd:"curl ascii.live/nyan",cat:"FUN",plat:"Linux",desc:"Nyan Cat via curl. No install, just pipe it straight from the internet into your eyeballs.",inst:"curl built-in"},
+  {cmd:"curl ascii.live/parrot",cat:"FUN",plat:"Linux",desc:"Party parrot — the forever bopping icon — streamed live to your terminal. The true spirit of the open internet.",inst:"curl built-in"},
+  {cmd:"curl ascii.live/matrix",cat:"FUN",plat:"Linux",desc:"Matrix rain served directly over curl. Run it anywhere with internet. No cmatrix install needed.",inst:"curl built-in"},
+  {cmd:"telnet mapscii.me",cat:"FUN",plat:"Linux",desc:"Interactive world map in your terminal over Telnet. Zoom in/out, scroll, pan. OpenStreetMap rendered in ASCII. Mind-blowing.",inst:"sudo apt install telnet"},
+  {cmd:"cbonsai -l",cat:"FUN",plat:"Linux",desc:"Animated bonsai tree that grows in real time. Branches spread, leaves appear. Living ASCII art. Screensaver material.",inst:"sudo apt install cbonsai"},
+  {cmd:"genact",cat:"FUN",plat:"Linux",desc:"Fake activity generator. Simulates compiling code, running servers, hacking — realistic-looking terminal busyness. Perfect for impressing observers.",inst:"npm install -g genact"},
+  {cmd:"hollywood",cat:"FUN",plat:"Linux",desc:"Fake hacking simulator. Fills your terminal with multiple panes of scrolling code, progress bars, and \"hacking\" activity. Mr. Robot IRL.",inst:"sudo apt install hollywood"},
+  {cmd:"nms",cat:"FUN",plat:"Linux",desc:"No More Secrets: recreates the Sneakers (1992) movie decryption effect on any piped text. Scrambled characters gradually reveal the real text.",inst:"sudo apt install no-more-secrets"},
+  {cmd:"bb",cat:"FUN",plat:"Linux",desc:"aalib demo: a full animated show with bouncing balls, matrix rain, fire, and morphing shapes — all in ASCII. A legit art piece.",inst:"sudo apt install bb"},
+  {cmd:"factor 1234567890",cat:"FUN",plat:"Linux",desc:"Prime factorizes any number instantly. Try insanely large numbers. Oddly satisfying and good for showing off math in a terminal.",inst:"Built into GNU coreutils"},
+  {cmd:"rev <<< \"AntManThePro\"",cat:"FUN",plat:"Linux",desc:"Reverses any string instantly. Pipe sentences, words, or whole files through rev. Small command, infinite entertainment.",inst:"Built-in (bash)"},
+  {cmd:"python3 -c \"import this\"",cat:"FUN",plat:null,desc:"⚡ CROSS The Zen of Python — 20 aphorisms of software wisdom printed in your terminal. Every programmer should have these memorized.",inst:"python3 built-in"},
+  {cmd:"python3 -c \"import antigravity\"",cat:"FUN",plat:"Linux",desc:"Opens a browser with the legendary XKCD comic about Python. The OG Easter egg. One of the best hidden jokes in any programming language.",inst:"python3 + GUI required"},
+  {cmd:"telnet towel.blinkenlights.nl",cat:"FUN",plat:"Windows",desc:"Star Wars Episode IV in ASCII art over Telnet. The whole movie. Still running. Enable Telnet Client first.",inst:"dism /online /Enable-Feature /FeatureName:TelnetClient"},
+  {cmd:"GodMode.{ED7BA470-8E54-465E-825C-99712043E01C}",cat:"FUN",plat:"Windows",desc:"Rename a folder to this exact string on your Desktop. Opens God Mode — every Windows setting in one place. Works Win 7–11.",inst:"Right-click Desktop → New Folder → rename exactly"},
+  {cmd:"perfmon /report",cat:"FUN",plat:"Windows",desc:"Generates a full system diagnostic report with fancy graphs and analysis. Takes 60 seconds, produces an HTML report. Impress yourself.",inst:"CMD (admin) — opens in browser when done"},
+  {cmd:"openssl rand -base64 32",cat:"FUN",plat:"Linux",desc:"Generates a cryptographically secure random 32-byte password, base64 encoded. The only way to generate passwords. Period.",inst:"sudo apt install openssl"},
+
+  // ── VISUAL ──
+  {cmd:"asciiquarium",cat:"VISUAL",plat:"Linux",desc:"Full-color animated aquarium. Fish, sharks, submarines, rubber ducks, and random sea life swim across your screen.",inst:"sudo apt install asciiquarium"},
+  {cmd:"cmatrix -r -b -u 2",cat:"VISUAL",plat:"Linux",desc:"Matrix digital rain — rainbow mode (-r), bold (-b), fastest update speed (-u 2). The only flex you need on a screen share.",inst:"sudo apt install cmatrix"},
+  {cmd:"unimatrix -s 96 -l o",cat:"VISUAL",plat:"Linux",desc:"Matrix rain using actual Unicode/katakana characters. More movie-accurate. Python-based, highly configurable.",inst:"pip install unimatrix"},
+  {cmd:"pipes.sh -t 4 -p 5",cat:"VISUAL",plat:"Linux",desc:"Animated color pipes snaking across your terminal. Type 4 = curved joints, 5 simultaneous pipes. Multiple styles and color modes.",inst:"github: pipeseroni/pipes.sh"},
+  {cmd:"nyancat",cat:"VISUAL",plat:"Linux",desc:"The legendary Nyan Cat flying across your terminal in full ANSI color with the rainbow trail. Cannot be unseen.",inst:"sudo apt install nyancat"},
+  {cmd:"lavat -c red -c orange -c yellow",cat:"VISUAL",plat:"Linux",desc:"Lava lamp with custom colors. Blobs rise and fall hypnotically. Specify multiple -c flags to mix colors.",inst:"cargo install lavat"},
+  {cmd:"aafire",cat:"VISUAL",plat:"Linux",desc:"ASCII art fire using aalib. Flickering campfire rendered in characters. Run multiple in tmux panes for a full inferno.",inst:"sudo apt install aalib-bin"},
+  {cmd:"cacafire",cat:"VISUAL",plat:"Linux",desc:"Full-color fire animation using libcaca. Far more vivid than aafire. The upgraded pyromaniac terminal toy.",inst:"sudo apt install caca-utils"},
+  {cmd:"watch -t -n 1 \"date | figlet | lolcat\"",cat:"VISUAL",plat:"Linux",desc:"A giant rainbow digital clock that updates every second. Date in massive ASCII art, cycling rainbow colors. Peak flex.",inst:"sudo apt install figlet lolcat"},
+  {cmd:"oh-my-posh init pwsh | Invoke-Expression",cat:"VISUAL",plat:"Windows",desc:"Transforms your PowerShell prompt with themes, Git status, battery level, icons, time, and more. 100+ themes. Install once, flex forever.",inst:"winget install JanDeLaune.OhMyPosh"},
+  {cmd:"scoop install neofetch && neofetch",cat:"VISUAL",plat:"Windows",desc:"Neofetch on Windows. Shows the Windows logo in ASCII, OS, CPU, GPU, RAM, uptime, resolution. The classic sysinfo flex.",inst:"scoop install neofetch"},
+
+  // ── ASCII ART ──
+  {cmd:"fortune | cowsay -f dragon | lolcat",cat:"ASCII ART",plat:"Linux",desc:"The holy combo: random fortune quote, spoken by a dragon, in rainbow colors. Pipe it into your .bashrc for a new quote every terminal open.",inst:"sudo apt install fortune cowsay lolcat"},
+  {cmd:"toilet -f mono12 -F metal",cat:"ASCII ART",plat:"Linux",desc:"toilet with the metal filter: chrome-style reflective gradient ASCII art. Combine with --gay for rainbow metal. Overkill in the best way.",inst:"sudo apt install toilet"},
+  {cmd:"figlet -f slant \"GodMode\" | lolcat",cat:"ASCII ART",plat:"Linux",desc:"figlet with the slant font + rainbow. Slanted italic ASCII letters in cycling neon. Best font for hacker energy.",inst:"sudo apt install figlet lolcat"},
+  {cmd:"jp2a --colors image.jpg",cat:"ASCII ART",plat:"Linux",desc:"Converts any image to full-color ASCII art. Drop in a photo, logo, meme — anything becomes terminal art. Adjustable width.",inst:"sudo apt install jp2a"},
+  {cmd:"img2txt image.png | less -R",cat:"ASCII ART",plat:"Linux",desc:"High-fidelity image to ANSI color art using libcaca. Better color accuracy than jp2a. Pipe through less -R to preserve colors.",inst:"sudo apt install caca-utils"},
+  {cmd:"sl -aFl",cat:"ASCII ART",plat:"Linux",desc:"Steam locomotive with passengers (-a), flying (-F), running across screen (-l). Classic Unix prank for when you typo `ls`.",inst:"sudo apt install sl"},
+  {cmd:"oneko -tora",cat:"ASCII ART",plat:"Linux",desc:"A tiger cat chases your mouse cursor around the X11 desktop. Classic 90s X11 toy. Still works perfectly.",inst:"sudo apt install oneko (X11 required)"},
+  {cmd:"cowsay -l",cat:"ASCII ART",plat:"Linux",desc:"Lists ALL available cowsay characters. 40+ options: tux, vader, ghostbusters, dragon, stegosaurus, and more.",inst:"sudo apt install cowsay"},
+
+  // ── GAMES ──
+  {cmd:"nethack",cat:"GAMES",plat:"Linux",desc:"The OG ASCII roguelike dungeon crawler. Permadeath, infinite complexity. People have literally spent years playing this.",inst:"sudo apt install nethack-console"},
+  {cmd:"bastet",cat:"GAMES",plat:"Linux",desc:"Bastard Tetris — it uses an algorithm to always give you the WORST possible piece. Psychological warfare. You will lose sleep.",inst:"sudo apt install bastet"},
+  {cmd:"ninvaders",cat:"GAMES",plat:"Linux",desc:"Full Space Invaders in the terminal. Waves of descending aliens, shields, increasing difficulty. Pure 80s arcade energy.",inst:"sudo apt install ninvaders"},
+  {cmd:"pacman4console",cat:"GAMES",plat:"Linux",desc:"Full Pac-Man clone in the terminal. Ghosts, power pellets, maze — everything is here. Works over SSH.",inst:"sudo apt install pacman4console"},
+  {cmd:"moon-buggy",cat:"GAMES",plat:"Linux",desc:"Side-scrolling moon rover game. Jump craters, shoot boulders. Deceptively addictive speed-runner vibes.",inst:"sudo apt install moon-buggy"},
+  {cmd:"2048-cli",cat:"GAMES",plat:"Linux",desc:"The 2048 sliding tile puzzle in your terminal. Arrow keys, score tracking, smooth animation.",inst:"sudo apt install 2048"},
+  {cmd:"frotz zork1.dat",cat:"GAMES",plat:"Linux",desc:"Text adventure interpreter. Play Zork, Hitchhiker's Guide, and any classic Infocom z-machine game. Get zork1.dat free legally online.",inst:"sudo apt install frotz"},
+  {cmd:"nsnake",cat:"GAMES",plat:"Linux",desc:"Clean snake game. Wall wrap option, speed settings, high score tracking. Simple dopamine loop.",inst:"sudo apt install nsnake"},
+
+  // ── AUDIO ──
+  {cmd:"cava",cat:"AUDIO",plat:"Linux",desc:"Console Audio Visualizer. Animated spectrum bars that dance to system audio. Fully customizable colors, bar count, smoothing.",inst:"sudo apt install cava"},
+  {cmd:"aplay /dev/urandom",cat:"AUDIO",plat:"Linux",desc:"Plays raw random data as audio — creates pure white noise / glitchy static. Avant-garde sound art from /dev/urandom. Loud. Ctrl+C to stop.",inst:"sudo apt install alsa-utils"},
+  {cmd:"sox -n synth 3 sin 528",cat:"AUDIO",plat:"Linux",desc:"SoX generates a 528Hz tone (the \"miracle frequency\") for 3 seconds. Change frequency for different notes. Build terminal music.",inst:"sudo apt install sox"},
+  {cmd:"beep -f 440 -l 200 -n -f 494 -l 200 -n -f 523 -l 400",cat:"AUDIO",plat:"Linux",desc:"Multi-tone beep sequence on the PC speaker. That's the opening of \"Mary Had a Little Lamb\" in beeps. Chain -n for full melodies.",inst:"sudo apt install beep"},
+
+  // ── SYS INFO ──
+  {cmd:"fastfetch",cat:"SYS INFO",plat:"Linux",desc:"Neofetch successor written in C. 10x faster, more modules, better defaults. Shows OS, kernel, CPU, GPU, memory, uptime with ASCII logo.",inst:"sudo apt install fastfetch"},
+  {cmd:"btop",cat:"SYS INFO",plat:"Linux",desc:"Next-gen resource monitor. CPU per-core graphs, memory/disk/network charts, process tree, gorgeous UI. Makes htop look like a prototype.",inst:"sudo apt install btop"},
+  {cmd:"glances",cat:"SYS INFO",plat:"Linux",desc:"All vitals on one screen: CPU, mem, disk I/O, network, processes, sensors, Docker containers. Has a built-in web server mode too.",inst:"pip install glances"},
+  {cmd:"cpufetch",cat:"SYS INFO",plat:"Linux",desc:"CPU-specific fetch tool. Shows microarchitecture, brand logo in ASCII, cache levels, frequency, core count. For hardware nerds.",inst:"github: Dr-Noob/cpufetch"},
+  {cmd:"inxi -Fxz",cat:"SYS INFO",plat:"Linux",desc:"The most thorough hardware info tool in existence. CPU, GPU, sound, network, drives, sensors, BIOS, repos. Full spec sheet.",inst:"sudo apt install inxi"},
+  {cmd:"Get-ComputerInfo | Select-Object *",cat:"SYS INFO",plat:"Windows",desc:"PowerShell dumps a massive structured object — BIOS, CPU, RAM, OS version, install date, domain, locale, timezone. Everything at once.",inst:"PowerShell (admin)"},
+  {cmd:"wmic memorychip get BankLabel,Capacity,Speed,Manufacturer",cat:"SYS INFO",plat:"Windows",desc:"Lists every installed RAM stick with capacity, speed (MHz), and manufacturer. No third-party tool needed. Good for upgrade planning.",inst:"CMD / PowerShell"},
+  {cmd:"powercfg /batteryreport /output battery.html",cat:"SYS INFO",plat:"Windows",desc:"Generates a full HTML battery health report: capacity history, drain rates, charge cycles, usage timeline. Surface Pro essential.",inst:"CMD (admin) — opens in browser"},
+  {cmd:"systeminfo",cat:"SYS INFO",plat:"Windows",desc:"Classic system info dump: OS version, install date, uptime, RAM, network adapters, hotfixes installed. Pipe to findstr to filter.",inst:"CMD"},
+
+  // ── NETWORK ──
+  {cmd:"nmap -sV -sC --open target",cat:"NETWORK",plat:"Linux",desc:"Port scan with service version detection + default scripts, showing only open ports. The standard recon command.",inst:"sudo apt install nmap"},
+  {cmd:"termshark",cat:"NETWORK",plat:"Linux",desc:"Wireshark-style packet capture and analysis in a full TUI. Filter expressions, follow streams, decode protocols — no GUI needed.",inst:"sudo apt install termshark"},
+  {cmd:"mtr --report google.com",cat:"NETWORK",plat:"Linux",desc:"Combines traceroute and ping into a live updating display with per-hop packet loss stats. Best single network diagnostic tool.",inst:"sudo apt install mtr"},
+  {cmd:"nethogs eth0",cat:"NETWORK",plat:"Linux",desc:"Real-time bandwidth usage per process. See exactly which app is eating your bandwidth. Instant answer to \"what's hogging my connection\".",inst:"sudo apt install nethogs"},
+  {cmd:"dig +short google.com",cat:"NETWORK",plat:"Linux",desc:"DNS lookup stripped down to just the answer. Fast, scriptable, no noise. Swap +short for +trace to watch DNS resolution step-by-step.",inst:"sudo apt install dnsutils"},
+  {cmd:"ss -tulpn",cat:"NETWORK",plat:"Linux",desc:"Shows all listening TCP/UDP sockets with the process name and PID. The modern replacement for netstat. Know exactly what's listening.",inst:"Built-in (iproute2)"},
+  {cmd:"Test-NetConnection google.com -Port 443",cat:"NETWORK",plat:"Windows",desc:"Tests TCP connectivity to any host/port. Returns latency, route info, and success state. The PowerShell telnet replacement.",inst:"PowerShell"},
+  {cmd:"pathping google.com",cat:"NETWORK",plat:"Windows",desc:"Combines tracert + ping. Analyzes every hop with packet loss stats over time. More thorough than either tool alone.",inst:"CMD"},
+  {cmd:"arp -a",cat:"NETWORK",plat:"Windows",desc:"Shows the ARP cache — every IP-to-MAC mapping for devices on your local subnet. Quick local network discovery.",inst:"CMD"},
+
+  // ── SYSADMIN ──
+  {cmd:"tmux new -s nexus",cat:"SYSADMIN",plat:"Linux",desc:"Terminal multiplexer — split panes, multiple sessions, detach and reattach. Start a session named \"nexus\". Essential for remote work.",inst:"sudo apt install tmux"},
+  {cmd:"fzf",cat:"SYSADMIN",plat:"Linux",desc:"Fuzzy finder for everything. Pipe any list into fzf for interactive filtered selection. Ctrl+R command history on steroids.",inst:"sudo apt install fzf"},
+  {cmd:"bat --style=full README.md",cat:"SYSADMIN",plat:"Linux",desc:"cat with syntax highlighting, line numbers, Git diff markers, pager support, and language detection. cat is officially retired.",inst:"sudo apt install bat"},
+  {cmd:"ncdu /",cat:"SYSADMIN",plat:"Linux",desc:"Interactive disk usage analyzer. Navigate your entire filesystem by size in real time. Find what's eating your storage in seconds.",inst:"sudo apt install ncdu"},
+  {cmd:"lazygit",cat:"SYSADMIN",plat:"Linux",desc:"Full Git TUI. Stage hunks interactively, resolve conflicts, cherry-pick, rebase — all with keyboard shortcuts. Git without the trauma.",inst:"sudo apt install lazygit"},
+  {cmd:"thefuck",cat:"SYSADMIN",plat:"Linux",desc:"Auto-corrects your previous failed terminal command. Type a wrong command, type `fuck`, it fixes it. Genuinely magical.",inst:"pip install thefuck"},
+  {cmd:"hyperfine \"cmd1\" \"cmd2\" --warmup 3",cat:"SYSADMIN",plat:"Linux",desc:"Benchmarks any command with statistical analysis, warm-up runs, and comparison output. Science-grade speed testing for your scripts.",inst:"cargo install hyperfine"},
+  {cmd:"zoxide init bash | source /dev/stdin",cat:"SYSADMIN",plat:"Linux",desc:"Smarter cd that learns your most visited directories. Type `z proj` and it jumps to your most-used folder matching \"proj\". cd is dead.",inst:"curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"},
+  {cmd:"exa --tree --level=3 --icons",cat:"SYSADMIN",plat:"Linux",desc:"Better ls: tree view, icons, color, Git status, file size columns. Makes plain ls look like it's from 1970.",inst:"sudo apt install exa"},
+  {cmd:"tldr docker",cat:"SYSADMIN",plat:null,desc:"⚡ CROSS Practical simplified man pages. Replace `docker` with any command. Shows real-world examples instead of dry specs. The man page you actually read.",inst:"npm install -g tldr"},
+  {cmd:"robocopy src dst /MIR /MT:32 /LOG:copy.log",cat:"SYSADMIN",plat:"Windows",desc:"Mirror-copy with 32 parallel threads and a log file. The most powerful file copy tool built into Windows. Restartable, filtered.",inst:"CMD — built into Windows"},
+  {cmd:"sfc /scannow",cat:"SYSADMIN",plat:"Windows",desc:"System File Checker. Scans and auto-repairs corrupted Windows system files. Step 1 of any Windows repair sequence.",inst:"CMD (admin) — takes 5-10 min"},
+  {cmd:"winget upgrade --all --silent",cat:"SYSADMIN",plat:"Windows",desc:"Updates ALL installed apps silently via Windows Package Manager. One command. Like apt upgrade for Windows. Run weekly.",inst:"PowerShell / CMD (Win 10 1809+)"},
+  {cmd:"Get-Process | Out-GridView",cat:"SYSADMIN",plat:"Windows",desc:"Pipes ANY PowerShell output into a sortable, filterable Excel-like GUI grid window. Works with literally any cmdlet. Wildly underused.",inst:"PowerShell"},
+  {cmd:"wsl --import MyDistro C:\\WSL\\Custom distro.tar",cat:"SYSADMIN",plat:null,desc:"⚡ CROSS Import ANY Linux distro from a tarball into WSL — Parrot OS, Kali, Alpine, custom builds. Your actual dual-boot workflow.",inst:"PowerShell (admin)"},
+  {cmd:"explorer.exe .",cat:"SYSADMIN",plat:null,desc:"⚡ CROSS From inside WSL: opens the current Linux directory in Windows Explorer. The most satisfying cross-environment command.",inst:"Inside WSL terminal"},
+  {cmd:"wsl --shutdown",cat:"SYSADMIN",plat:null,desc:"⚡ CROSS Fully terminates the WSL2 VM and ALL distros. Immediately frees all memory. Run this when WSL is hogging RAM.",inst:"PowerShell / CMD"},
+
+  // ── SEC / HACKING ──
+  {cmd:"nmap -p- -sV -oA fullscan target",cat:"SEC / HACKING",plat:"Linux",desc:"Full port sweep (all 65535), service version detection, output saved to all formats. Standard audit starting point. Authorized use only.",inst:"sudo apt install nmap"},
+  {cmd:"aircrack-ng -w rockyou.txt capture.cap",cat:"SEC / HACKING",plat:"Linux",desc:"WPA/WPA2 dictionary attack on a captured handshake file. The WiFi security audit classic. For authorized testing only.",inst:"sudo apt install aircrack-ng"},
+  {cmd:"hashcat -m 0 hashes.txt rockyou.txt",cat:"SEC / HACKING",plat:"Linux",desc:"GPU-accelerated hash cracking. MD5, SHA1, NTLM, bcrypt — supports 300+ hash types. Faster than John on GPU hardware.",inst:"sudo apt install hashcat"},
+  {cmd:"john --wordlist=rockyou.txt hashes.txt",cat:"SEC / HACKING",plat:"Linux",desc:"John the Ripper — CPU-based password cracker. Supports most hash formats. rockyou.txt is the go-to wordlist.",inst:"sudo apt install john"},
+  {cmd:"strings binary | grep -i pass",cat:"SEC / HACKING",plat:"Linux",desc:"Extracts printable strings from a binary and filters for anything containing 'pass'. Quick look for hardcoded credentials. Static analysis 101.",inst:"Built-in (binutils)"},
+  {cmd:"strace -p PID",cat:"SEC / HACKING",plat:"Linux",desc:"Traces every system call made by a running process. Watch it talk to the kernel in real time. Essential for malware analysis and debugging.",inst:"sudo apt install strace"},
+  {cmd:"netsh wlan show profile WiFiName key=clear",cat:"SEC / HACKING",plat:"Windows",desc:"Reveals any saved WiFi password in plaintext under \"Key Content\". Built into Windows, no tools needed. Classic recovery trick.",inst:"CMD (admin)"},
+  {cmd:"whoami /all",cat:"SEC / HACKING",plat:"Windows",desc:"Full user context: username, SID, all group memberships, and privilege list. Essential user audit or post-exploitation recon.",inst:"CMD / PowerShell"},
+  {cmd:"certutil -hashfile file.exe SHA256",cat:"SEC / HACKING",plat:"Windows",desc:"Computes SHA256 hash of any file with zero tools. Built into Windows. Verify downloads, detect tampering, compare integrity.",inst:"CMD — built into Windows"},
+  {cmd:"cipher /w:C:\\",cat:"SEC / HACKING",plat:"Windows",desc:"Secure-wipes all free space on a drive by overwriting with zeroes. Built-in secure erase. No third-party tool needed.",inst:"CMD — takes a while on large drives"},
+  {cmd:"Get-AuthenticodeSignature *.exe | Where {$_.Status -ne 'Valid'}",cat:"SEC / HACKING",plat:"Windows",desc:"Checks all executables for invalid or missing digital signatures. Find unsigned or tampered binaries in any folder.",inst:"PowerShell"},
+
+  // ── CURL TRICKS ──
+  {cmd:"curl wttr.in/Dallas",cat:"CURL TRICKS",plat:null,desc:"⚡ CROSS Beautiful ASCII weather report with emoji icons, 3-day forecast, wind, humidity, and moon phase. Works for any city.",inst:"curl built-in"},
+  {cmd:"curl wttr.in/Moon",cat:"CURL TRICKS",plat:null,desc:"⚡ CROSS Shows the current moon phase as ASCII art with the exact percentage illuminated. Also try: wttr.in/:help for all options.",inst:"curl built-in"},
+  {cmd:"curl rate.sx/btc",cat:"CURL TRICKS",plat:null,desc:"⚡ CROSS Live cryptocurrency prices rendered as ASCII charts in your terminal. BTC, ETH, and top altcoins. Auto-refreshes.",inst:"curl built-in"},
+  {cmd:"curl cheat.sh/docker",cat:"CURL TRICKS",plat:null,desc:"⚡ CROSS Instant cheat sheet for ANY command-line tool. Replace docker with: vim, git, regex, python, awk. The best man page alternative.",inst:"curl built-in"},
+  {cmd:"curl icanhazip.com",cat:"CURL TRICKS",plat:null,desc:"⚡ CROSS Returns your public IP address. One command, zero fluff. No JSON parsing, no HTML — just the IP. Script-friendly.",inst:"curl built-in"},
+  {cmd:"curl -s \"https://icanhazdadjoke.com\" -H \"Accept: text/plain\"",cat:"CURL TRICKS",plat:null,desc:"⚡ CROSS Random dad joke delivered to your terminal in plain text. One curl flag, one header. Pure cringe content pipeline.",inst:"curl built-in"},
+  {cmd:"curl -s https://api.kanye.rest | python3 -c \"import sys,json;print(json.load(sys.stdin)['quote'])\"",cat:"CURL TRICKS",plat:null,desc:"⚡ CROSS Pulls a random Kanye West quote from a public API. Because your terminal needed wisdom from Ye.",inst:"curl + python3 built-in"},
+  {cmd:"curl ascii.live/random",cat:"CURL TRICKS",plat:null,desc:"⚡ CROSS Loads a random ASCII animation from ascii.live. Could be anything — parrot, fireworks, text art, Forrest. Surprise yourself.",inst:"curl built-in"},
+  {cmd:"curl -s https://httpbin.org/get",cat:"CURL TRICKS",plat:null,desc:"⚡ CROSS Returns all available connection info: IP, port, user-agent, forwarded-for headers. More detail than icanhazip.",inst:"curl built-in"},
+
+  // ── ONE-LINERS ──
+  {cmd:"while true; do ps aux --sort=-%cpu | head -6 | lolcat; sleep 1; clear; done",cat:"ONE-LINERS",plat:"Linux",desc:"Live rainbow top-5 CPU processes updating every second. Like htop but with PTSD-inducing colors. Ctrl+C to escape.",inst:"Requires lolcat"},
+  {cmd:"ls -la | awk '{print $5, $9}' | sort -rn | head -20",cat:"ONE-LINERS",plat:"Linux",desc:"Lists files sorted by size descending, showing only size and name. Quick way to find your biggest files without ncdu.",inst:"Built-in (awk)"},
+  {cmd:"history | awk '{print $2}' | sort | uniq -c | sort -rn | head -20",cat:"ONE-LINERS",plat:"Linux",desc:"Shows your top 20 most-used commands ranked by frequency. Reveals your real terminal habits. Self-audit your muscle memory.",inst:"Built-in (bash)"},
+  {cmd:"for i in {1..8}; do echo -e \"\\033[4${i}m COLOR $i \\033[0m\"; done",cat:"ONE-LINERS",plat:"Linux",desc:"Prints all 8 ANSI background colors with their codes. Quick terminal color reference. Paste in scripts.",inst:"Built-in (bash)"},
+  {cmd:"cat /dev/urandom | tr -dc 'a-zA-Z0-9!@#$' | fold -w 24 | head -5",cat:"ONE-LINERS",plat:"Linux",desc:"Generates 5 random 24-character passwords from /dev/urandom. Fast, cryptographically random, no tools needed.",inst:"Built-in"},
+  {cmd:"find . -name \"*.js\" | xargs wc -l | sort -rn | head -20",cat:"ONE-LINERS",plat:"Linux",desc:"Finds all JS files, counts lines in each, sorts by largest. Replace *.js with any extension. Instantly see your fattest files.",inst:"Built-in"},
+  {cmd:"(Get-Date) - (gcim Win32_OperatingSystem).LastBootUpTime",cat:"ONE-LINERS",plat:"Windows",desc:"Returns your exact system uptime as a TimeSpan object. Days, hours, minutes, seconds since last boot. Precise.",inst:"PowerShell"},
+  {cmd:"Get-ChildItem -Recurse -File | Sort Length -Desc | Select -First 20 | Format-Table Name,Length,Directory",cat:"ONE-LINERS",plat:"Windows",desc:"Recursively finds your 20 largest files with name, size, and full directory path. Storage investigation made simple.",inst:"PowerShell"},
+  {cmd:"netstat -ano | findstr ESTABLISHED | Measure-Object | Select Count",cat:"ONE-LINERS",plat:"Windows",desc:"Counts how many active established TCP connections your machine currently has. One-line connection audit.",inst:"CMD"},
+
+  // ── WIZARDRY (NEW CATEGORY) ──
+  {cmd:"watch -n 1 'cat /proc/loadavg && uptime'",cat:"WIZARDRY",plat:"Linux",desc:"Refreshes system load average every second live in your terminal. See CPU demand spike in real time. No tools needed.",inst:"Built-in"},
+  {cmd:"sudo lsof -i -P -n | grep LISTEN",cat:"WIZARDRY",plat:"Linux",desc:"Lists every port actively listening on your system with the exact process name and PID. The definitive \"what is open\" command.",inst:"sudo apt install lsof"},
+  {cmd:"diff <(ssh host1 'ls /var/www') <(ssh host2 'ls /var/www')",cat:"WIZARDRY",plat:"Linux",desc:"Compares directory listings across two remote servers in one command using process substitution. Ops sorcery.",inst:"ssh configured on both hosts"},
+  {cmd:"curl -s https://raw.githubusercontent.com/nicowillis/spaces/master/spaces.txt | shuf -n 1",cat:"WIZARDRY",plat:"Linux",desc:"Random liminal space description from a curated list. Existential dread as a service. Pipe into cowsay for maximum effect.",inst:"curl + shuf built-in"},
+  {cmd:"yes \"$(seq 1 255 | xargs -I{} printf '\\e[38;5;{}m█')\" | tr -d '\\n' | fold -w $(tput cols)",cat:"WIZARDRY",plat:"Linux",desc:"Renders all 256 terminal colors as a solid gradient of block characters across your full terminal width. The color flex of all color flexes.",inst:"Built-in (bash)"},
+  {cmd:"ncat -lvnp 4444",cat:"WIZARDRY",plat:"Linux",desc:"Opens a netcat listener on port 4444. The foundation of reverse shells, data exfil testing, and custom TCP services. ncat is the modern netcat.",inst:"sudo apt install ncat"},
+  {cmd:"objdump -d binary | head -60",cat:"WIZARDRY",plat:"Linux",desc:"Disassembles a binary's machine code into human-readable assembly. First step in reverse engineering. See what the computer actually runs.",inst:"sudo apt install binutils"},
+  {cmd:"sudo tcpdump -i any -nn -s0 -v 'port 80'",cat:"WIZARDRY",plat:"Linux",desc:"Captures all HTTP traffic on every interface in real time, raw. The closest thing to reading the internet's mind. Authorized networks only.",inst:"sudo apt install tcpdump"},
+  {cmd:"for port in 22 80 443 8080; do nc -zv localhost $port 2>&1; done",cat:"WIZARDRY",plat:"Linux",desc:"Scans a list of ports on localhost and reports which are open. Quick local service audit. Extend the list freely.",inst:"sudo apt install netcat"},
+  {cmd:"dd if=/dev/sda bs=512 count=1 | xxd | head",cat:"WIZARDRY",plat:"Linux",desc:"Reads and hex-dumps the first 512 bytes of your disk — the Master Boot Record. See your bootloader raw. Read-only, totally safe.",inst:"Built-in (dd, xxd)"},
+  {cmd:"python3 -m http.server 8080",cat:"WIZARDRY",plat:null,desc:"⚡ CROSS Instantly serves the current directory over HTTP on port 8080. The fastest file sharing trick. Open browser → localhost:8080.",inst:"python3 built-in — runs on both platforms"},
+  {cmd:"ssh -L 8080:target:80 user@jumphost",cat:"WIZARDRY",plat:"Linux",desc:"SSH local port forward — tunnels port 80 on a remote target through a jump host to your local port 8080. VPN in one command.",inst:"ssh configured"},
+];
+
+// ── UPDATE TOTAL COUNT ──
+document.getElementById('totalCount').textContent = COMMANDS.length;
+document.getElementById('totalSpan').textContent = COMMANDS.length;
+
+/* ════════════════════════════════════════════════
+   RENDER ENGINE
+════════════════════════════════════════════════ */
+let activeCategory = 'ALL';
+let searchQuery    = '';
+
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function hl(text, q) {
+  if (!q) return esc(text);
+  const safe = q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return esc(text).replace(new RegExp(`(${safe})`,'gi'),'<mark>$1</mark>');
+}
+function platBadge(p, d) {
+  const cross = (p === null) || (d && d.includes('⚡ CROSS'));
+  if (cross) return `<span class="badge badge-cross">⚡ CROSS</span>`;
+  if (p === 'Linux')   return `<span class="badge badge-plat">🐧 LINUX</span>`;
+  if (p === 'Windows') return `<span class="badge badge-plat">🪟 WIN</span>`;
+  return `<span class="badge badge-plat">${esc(p)}</span>`;
+}
+
+function render() {
+  const grid  = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+  const rCount = document.getElementById('resultCount');
+  const shown  = document.getElementById('shownCount');
+  const q = searchQuery.toLowerCase().trim();
+
+  const filtered = COMMANDS.filter(c => {
+    if (activeCategory !== 'ALL' && c.cat !== activeCategory) return false;
+    if (!q) return true;
+    return (c.cmd||'').toLowerCase().includes(q)
+        || (c.desc||'').toLowerCase().includes(q)
+        || (c.inst||'').toLowerCase().includes(q)
+        || (c.cat||'').toLowerCase().includes(q)
+        || (c.plat||'').toLowerCase().includes(q);
+  });
+
+  shown.textContent = filtered.length;
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    rCount.innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+  rCount.innerHTML = (q || activeCategory !== 'ALL')
+    ? `Showing <strong>${filtered.length}</strong> of ${COMMANDS.length} commands`
+    : '';
+
+  grid.innerHTML = filtered.map(c => {
+    const color = CAT_COLORS[c.cat] || '#60efff';
+    const desc  = (c.desc||'').replace(/⚡ CROSS\s*/g,'').trim();
+    return `
+    <div class="card" style="--cat-color:${color}">
+      <div class="card-top">
+        <div class="cmd-text">${hl(c.cmd, q)}</div>
+        <button class="copy-btn" onclick="copyCmd(this,'${encodeURIComponent(c.cmd)}')">COPY</button>
+      </div>
+      ${desc ? `<div class="desc">${hl(desc, q)}</div>` : ''}
+      <div class="card-footer">
+        <span class="badge badge-cat">${esc(c.cat)}</span>
+        ${platBadge(c.plat, c.desc)}
+      </div>
+      ${c.inst ? `<div class="install"><span class="install-label">$ </span>${hl(c.inst, q)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function copyCmd(btn, encoded) {
+  const text = decodeURIComponent(encoded);
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'COPIED!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 1600);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = 'COPIED!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 1600);
+  });
+}
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value; render();
+});
+document.querySelectorAll('.cat-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeCategory = btn.dataset.cat;
+    render();
+  });
+});
+
+const scrollBtn = document.getElementById('scrollTop');
+window.addEventListener('scroll', () => scrollBtn.classList.toggle('visible', window.scrollY > 400));
+scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+// Only render if already authed on load
+if (sessionStorage.getItem('nexus_auth') === '1') render();
+</script>
+</body>
+</html>
